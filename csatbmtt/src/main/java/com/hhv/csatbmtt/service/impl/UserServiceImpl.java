@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.catalina.User;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.hhv.csatbmtt.dto.UserDTO;
+import com.hhv.csatbmtt.entity.UserDetail;
 import com.hhv.csatbmtt.entity.UserEntity;
 import com.hhv.csatbmtt.repository.UserRepository;
 import com.hhv.csatbmtt.service.UserService;
@@ -74,6 +75,29 @@ public class UserServiceImpl implements UserService{
 			}
 		}
 		return response;
+	}
+
+	@Override
+	public UserDTO findById(UserDTO dto) {
+		UserDTO response;
+		Optional<UserEntity> entity = repository.findById(dto.getId());
+		if(entity.isEmpty()) {
+			response = UserDTO.builder().success(false).build();
+		}else {
+			response = UserDTO.builder()
+					.id(entity.get().getId())
+					.password(entity.get().getPassword())
+					.success(true)
+					.build();
+		}
+		return response;
+	}
+
+	@Override
+	public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
+		Optional<UserEntity> entity = repository.findById(id);
+		return entity.map(UserDetail::new) 
+                .orElseThrow(() -> new UsernameNotFoundException("User not found " + id));
 	}
 
 }

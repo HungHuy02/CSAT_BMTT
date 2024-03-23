@@ -1,9 +1,11 @@
 package com.hhv.csatbmtt.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.hhv.csatbmtt.entity.UserEntity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,12 +14,19 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PermissionDTO {
 	
 
 	private Long id;
-	private UserEntity entityMain;
+	private UserDTO entityMain;
 	private String columnName;
-	private UserEntity entityOther;
+	private UserDTO entityOther;
+	
+	private Boolean success;
+	private String mes;
+	
+	private List<PermissionDTO> dtos;
+
 }

@@ -5,11 +5,16 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.hhv.csatbmtt.dto.PermissionDTO;
+import com.hhv.csatbmtt.entity.PermissionEntity;
 import com.hhv.csatbmtt.repository.PermissionRepository;
 import com.hhv.csatbmtt.service.PermissionService;
 
+import lombok.Builder;
+
+@Service
 public class PermissionServiceImpl implements PermissionService{
 	
 	@Autowired
@@ -19,10 +24,45 @@ public class PermissionServiceImpl implements PermissionService{
 	private ModelMapper mapper;
 
 	@Override
-	public List<PermissionDTO> findAll() {
-		return repository.findAll().stream()
-				.map(entity -> mapper.map(entity, PermissionDTO.class))
-				.collect(Collectors.toList());
+	public PermissionDTO findAll() {
+		PermissionDTO response;
+		List<PermissionEntity> entities = repository.findAll();
+		if(entities.isEmpty()) {
+			response = PermissionDTO.builder()
+					.mes("Thất bại")
+					.success(false)
+					.build();
+		}else {
+			response = PermissionDTO.builder()
+					.mes("Thành công")
+					.success(true)
+					.dtos(entities.stream()
+							.map(entity -> mapper.map(entity, PermissionDTO.class))
+							.collect(Collectors.toList()))
+					.build();
+		}
+		return response;
+	}
+
+	@Override
+	public PermissionDTO findByIdMain(String idMain) {
+		PermissionDTO response;
+		List<PermissionEntity> entities = repository.findAll();
+		if(entities.isEmpty()) {
+			response = PermissionDTO.builder()
+					.mes("Thất bại")
+					.success(false)
+					.build();
+		}else {
+			response = PermissionDTO.builder()
+					.mes("Thành công")
+					.success(true)
+					.dtos(entities.stream()
+							.map(entity -> mapper.map(entity, PermissionDTO.class))
+							.collect(Collectors.toList()))
+					.build();
+		}
+		return response;
 	}
 
 }
