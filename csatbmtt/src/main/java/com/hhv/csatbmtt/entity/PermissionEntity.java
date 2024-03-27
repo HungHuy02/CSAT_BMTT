@@ -40,5 +40,4 @@ public class PermissionEntity {
 	
 	@Column(columnDefinition = "TEXT")
 	private String ekey;
-	
 }

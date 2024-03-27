@@ -24,6 +24,9 @@ public class PermissionDTO {
 	private String columnName;
 	private UserDTO entityOther;
 	
+	private String id_main;
+	private String id_other;
+	
 	private Boolean success;
 	private String mes;
 	

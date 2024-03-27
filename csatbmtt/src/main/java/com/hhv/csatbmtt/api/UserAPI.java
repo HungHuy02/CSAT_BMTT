@@ -51,14 +51,14 @@ public class UserAPI {
 	
 	@PostMapping("login")
 	public ResponseEntity<UserDTO> login(@RequestBody UserDTO userDTO) {
-		UserDTO response1 = userService.login(userDTO);
-		if(response1.getSuccess()) {
+		UserDTO response = userService.login(userDTO);
+		if(response.getSuccess()) {
 			HttpHeaders header = new HttpHeaders();
 			header.add("Authorization", "Bearer " + jwtUtil.generateToken(userDTO.getId(), userDTO.getPassword()));
 //			header.add("Authen", jwtUtil.generateToken(userDTO.getId(), userDTO.getPassword()));
-			return new ResponseEntity<UserDTO>(response1 , header, HttpStatus.OK);
+			return new ResponseEntity<UserDTO>(response , header, HttpStatus.OK);
 		}else
-			return new ResponseEntity<UserDTO>(response1 , HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<UserDTO>(response , HttpStatus.BAD_REQUEST);
 	}
 	
 	@PutMapping("updateDecentralization/:{id}")
@@ -70,6 +70,33 @@ public class UserAPI {
 	@GetMapping("getDataUser/getDecentralization/:{id}")
 	public ResponseEntity<List<UserDTO>> getAllUser(@PathVariable String id) {
 		return new ResponseEntity<List<UserDTO>>(userService.findAll(), HttpStatus.OK);
+	}
+	
+	@GetMapping("getInfPersonal/:{id}")
+	public ResponseEntity<UserDTO> getInfPersonal(@PathVariable String id) {
+		UserDTO response = userService.findById(UserDTO.builder().id(id).build());
+		if(response.getSuccess()) {
+			return new ResponseEntity<UserDTO>(response, HttpStatus.OK);
+		}else 
+			return new ResponseEntity<UserDTO>(response, HttpStatus.BAD_REQUEST);
+	}
+	
+	@PostMapping("addDecentralization")
+	public ResponseEntity<PermissionDTO> addDecentralization(@RequestBody PermissionDTO dto) {
+		PermissionDTO response = permissionService.save(dto);
+		if(response.getSuccess()) {
+			return new ResponseEntity<PermissionDTO>(response, HttpStatus.OK);
+		}else 
+			return new ResponseEntity<PermissionDTO>(response, HttpStatus.BAD_REQUEST);
+	}
+	
+	@PostMapping("deleteDecentralization")
+	public ResponseEntity<PermissionDTO> deleteDecentralization(@RequestBody PermissionDTO dto) {
+		PermissionDTO response = permissionService.delete(dto.getId_main(), dto.getId_other());
+		if(response.getSuccess()) {
+			return new ResponseEntity<PermissionDTO>(response, HttpStatus.OK);
+		}else 
+			return new ResponseEntity<PermissionDTO>(response, HttpStatus.BAD_REQUEST);
 	}
 	
 	@PostMapping("logout")
