@@ -2,10 +2,12 @@ package com.hhv.csatbmtt.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -14,7 +16,9 @@ import com.hhv.csatbmtt.dto.UserDTO;
 import com.hhv.csatbmtt.entity.UserDetail;
 import com.hhv.csatbmtt.entity.UserEntity;
 import com.hhv.csatbmtt.repository.UserRepository;
+import com.hhv.csatbmtt.security.RSA;
 import com.hhv.csatbmtt.service.UserService;
+import com.hhv.csatbmtt.util.EncryptAndDecryptUtil;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -24,6 +28,12 @@ public class UserServiceImpl implements UserService{
 	
 	@Autowired
 	private ModelMapper mapper;
+	
+	@Autowired
+	private RSA rsa;
+	
+	@Autowired
+	private EncryptAndDecryptUtil encryptAndDecryptUtil;
 
 	@Override
 	public UserDTO save(UserDTO dto) {
@@ -51,7 +61,11 @@ public class UserServiceImpl implements UserService{
 			response.setSuccess(false);
 			response.setMes("Thất bại");
 		}else {
-			
+			UserEntity entity = encryptAndDecryptUtil.encryptAll(mapper.map(dto, UserEntity.class));
+			Map<String, String> keys = rsa.generateKey();
+			entity.setPublicKey(keys.get("public_key"));
+			entity.setPrivateKey(keys.get("private_key"));
+			repository.save(entity);
 			response.setSuccess(true);
 			response.setMes("Thành công");
 		}
@@ -66,7 +80,7 @@ public class UserServiceImpl implements UserService{
 			response.setSuccess(false);
 			response.setMes("Thất bại");
 		}else {
-			if(optional.get().getPassword().equals(dto.getPassword())) {
+			if(encryptAndDecryptUtil.checkPassword(optional.get(), dto)) {
 				response.setId(optional.get().getId());
 				response.setSuccess(true);
 				response.setMes("Thành công");

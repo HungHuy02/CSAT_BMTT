@@ -38,4 +38,7 @@ public class PermissionEntity {
 	@JoinColumn(name = "id_other")
 	private UserEntity entityOther;
 	
+	@Column(columnDefinition = "TEXT")
+	private String ekey;
+	
 }

@@ -1,7 +1,5 @@
 package com.hhv.csatbmtt.security;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -381,9 +379,10 @@ public class AES {
 		return byteArray;
 	}
 
-	public String encrypt(String plainText, String iv) throws UnsupportedEncodingException {
+	public String encrypt(String plainText, String iv) {
 		byte[] ivb = iv.getBytes();
-		List<byte[]> blocks = splitIntoBlocks(plainText.getBytes("UTF-8"));
+		ivb = addPKCS7Padding(ivb, 16);
+		List<byte[]> blocks = splitIntoBlocks(plainText.getBytes());
 		byte[] rs = new byte[0];
 		for (byte[] b : blocks) {
 			rs = mergeArrays(rs, Cipher(b, ivb));
@@ -391,13 +390,14 @@ public class AES {
 		return byteArrayToHexString(rs);
 	}
 
-	public String decrypt(String cipherText, String iv) throws UnsupportedEncodingException {
+	public String decrypt(String cipherText, String iv) {
 		byte[] ivb = iv.getBytes();
+		ivb = addPKCS7Padding(ivb, 16);
 		List<byte[]> blocks = splitIntoBlocks(hexStringToByteArray(cipherText));
 		byte[] rs = new byte[0];
 		for (byte[] b : blocks) {
 			rs = mergeArrays(rs, DeCipher(b, ivb));
 		}
-		return new String(rs, StandardCharsets.UTF_8);
+		return new String(rs);
 	}
 }

@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,12 +27,14 @@ public class UserDTO {
 
 	private String name;
 	private String password;
-	private Date birthday;
+	private String birthday;
 	private String email;
 	private String atm;
 	private String phone;
 	private String address;
-	
+	private String publicKey;
+	private String privateKey;
+
 	private Boolean success;
 	private String mes;
 }

@@ -63,7 +63,7 @@ public class RSA {
 			return gcd(z.remainder(e), e);
 	}
 
-	private Map<String, String> generateKey() {
+	public Map<String, String> generateKey() {
 		BigInteger p, q;
 		do {
 			p = BigInteger.probablePrime(KEY_SIZE, new Random());
@@ -130,7 +130,7 @@ public class RSA {
 		return byteArrayToHexString(bytes);
 	}
 
-	private String encrypt(String text, String publicKey) {
+	public String encrypt(String text, String publicKey) {
 		byte[] plainText = text.getBytes();
 		List<String> values = keyToValue(publicKey);
 		BigInteger e = new BigInteger(values.get(0));
@@ -139,7 +139,7 @@ public class RSA {
 		return byteArrayToHexString(result);
 	}
 
-	private String decrypt(String hexa, String privateKey) {
+	public String decrypt(String hexa, String privateKey) {
 		byte[] cipherText = hexStringToByteArray(hexa);
 		List<String> values = keyToValue(privateKey);
 		BigInteger d = new BigInteger(values.get(0));

@@ -53,7 +53,7 @@ public class UserEntity {
 	private String name;
 
 	@Column
-	private Date birthday;
+	private String birthday;
 
 	@Column
 	private String email;
@@ -64,6 +64,12 @@ public class UserEntity {
 	@Column
 	private String phone;
 
-	@Column
+	@Column(columnDefinition = "TEXT")
 	private String address;
+	
+	@Column(columnDefinition = "TEXT")
+	private String publicKey;
+	
+	@Column(columnDefinition = "TEXT")
+	private String privateKey;
 }
