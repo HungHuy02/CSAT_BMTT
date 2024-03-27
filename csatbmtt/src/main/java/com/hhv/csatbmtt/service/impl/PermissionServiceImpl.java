@@ -12,8 +12,6 @@ import com.hhv.csatbmtt.entity.PermissionEntity;
 import com.hhv.csatbmtt.repository.PermissionRepository;
 import com.hhv.csatbmtt.service.PermissionService;
 
-import lombok.Builder;
-
 @Service
 public class PermissionServiceImpl implements PermissionService{
 	
