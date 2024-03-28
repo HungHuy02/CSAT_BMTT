@@ -1,5 +1,6 @@
 package com.hhv.csatbmtt.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,9 +45,9 @@ public class PermissionServiceImpl implements PermissionService{
 	}
 
 	@Override
-	public PermissionDTO findByIdMain(String idMain) {
+	public PermissionDTO findAllByIdMain(String idMain) {
 		PermissionDTO response;
-		List<PermissionEntity> entities = repository.findAll();
+		List<PermissionEntity> entities = repository.findByEntityMain_citizenIdentificationNumber(idMain);
 		if(entities.isEmpty()) {
 			response = PermissionDTO.builder()
 					.mes("Thất bại")
@@ -65,10 +66,10 @@ public class PermissionServiceImpl implements PermissionService{
 	}
 
 	@Override
-	public PermissionDTO delete(String id_main, String id_other) {
+	public PermissionDTO delete(PermissionDTO dto) {
 		PermissionDTO response;
-		repository.deleteByEntityMain_idAndEntityOther_id(id_main, id_other);
-		List<PermissionEntity> list = repository.findByEntityMain_idAndEntityOther_id(id_main, id_other);
+		repository.deleteByEntityMain_citizenIdentificationNumberAndEntityOther_citizenIdentificationNumber(dto.getId_main(), dto.getId_others());
+		List<PermissionEntity> list = repository.findByEntityMain_citizenIdentificationNumberAndEntityOther_citizenIdentificationNumber(dto.getId_main(), dto.getId_others());
 		if(list.isEmpty()) {
 			response = PermissionDTO.builder()
 					.mes("Thành công")
@@ -85,8 +86,8 @@ public class PermissionServiceImpl implements PermissionService{
 
 	@Override
 	public PermissionDTO save(PermissionDTO dto) {
-		dto.setEntityMain(UserDTO.builder().id(dto.getId_main()).build());
-		dto.setEntityOther(UserDTO.builder().id(dto.getId_other()).build());
+		dto.setEntityMain(UserDTO.builder().citizenIdentificationNumber(dto.getId_main()).build());
+		dto.setEntityOther(UserDTO.builder().citizenIdentificationNumber(dto.getId_others()).build());
 		PermissionDTO response;
 		PermissionEntity entity = repository.save(mapper.map(dto, PermissionEntity.class));
 		if(entity.getId() != null) {
@@ -100,6 +101,38 @@ public class PermissionServiceImpl implements PermissionService{
 					.success(false)
 					.build();
 		}
+		return response;
+	}
+
+	@Override
+	public PermissionDTO update(PermissionDTO dto) {
+		PermissionDTO response;
+		repository.deleteByEntityMain_citizenIdentificationNumberAndEntityOther_citizenIdentificationNumber(dto.getId_main(), dto.getId_others());
+		List<PermissionEntity> list = repository.findByEntityMain_citizenIdentificationNumberAndEntityOther_citizenIdentificationNumber(dto.getId_main(), dto.getId_others());
+		if(list.isEmpty()) {
+			List<Long> ids = new ArrayList<>();
+			for (PermissionDTO object : dto.getDataChange()) {
+				PermissionEntity entity = repository.save(mapper.map(object, PermissionEntity.class));
+				ids.add(entity.getId());
+			}
+			if(ids.size() == dto.getDataChange().size()) {
+				response = PermissionDTO.builder()
+						.mes("Thành công")
+						.success(true)
+						.build();
+			}else {
+				response = PermissionDTO.builder()
+						.mes("Thất bại")
+						.success(false)
+						.build();
+			}
+		}else {
+			response = PermissionDTO.builder()
+					.mes("Thất bại")
+					.success(false)
+					.build();
+		}
+		
 		return response;
 	}
 

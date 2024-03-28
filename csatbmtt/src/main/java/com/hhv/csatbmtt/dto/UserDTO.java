@@ -19,7 +19,7 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDTO {
 
-	private String id;
+	private String citizenIdentificationNumber;
 //	private String createdBy;
 //	private String modifiedBy;
 //	private Date createdDate;
@@ -30,10 +30,14 @@ public class UserDTO {
 	private String birthday;
 	private String email;
 	private String atm;
-	private String phone;
+	private String phoneNumber;
 	private String address;
 	private String publicKey;
 	private String privateKey;
+	
+	private String token;
+	
+	private UserDTO individual;
 
 	private Boolean success;
 	private String mes;

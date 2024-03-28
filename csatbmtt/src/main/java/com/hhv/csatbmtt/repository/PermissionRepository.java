@@ -8,7 +8,7 @@ import com.hhv.csatbmtt.entity.PermissionEntity;
 
 public interface PermissionRepository extends JpaRepository<PermissionEntity, Long>{
 
-	List<PermissionEntity> findByEntityMain_id(String idMain);
-	List<PermissionEntity> findByEntityMain_idAndEntityOther_id(String id_main, String id_other);
-	void deleteByEntityMain_idAndEntityOther_id(String id_main, String id_other);
+	List<PermissionEntity> findByEntityMain_citizenIdentificationNumber(String idMain);
+	List<PermissionEntity> findByEntityMain_citizenIdentificationNumberAndEntityOther_citizenIdentificationNumber(String id_main, String id_other);
+	void deleteByEntityMain_citizenIdentificationNumberAndEntityOther_citizenIdentificationNumber(String id_main, String id_other);
 }

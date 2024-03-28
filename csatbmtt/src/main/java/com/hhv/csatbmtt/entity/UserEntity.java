@@ -22,7 +22,7 @@ import lombok.Setter;
 public class UserEntity {
 
 	@Id
-	private String id;
+	private String citizenIdentificationNumber;
 	
 	@OneToMany(mappedBy = "entityMain")
 	private List<PermissionEntity> listMain;
@@ -62,7 +62,7 @@ public class UserEntity {
 	private String atm;
 
 	@Column
-	private String phone;
+	private String phoneNumber;
 
 	@Column(columnDefinition = "TEXT")
 	private String address;

@@ -25,11 +25,12 @@ public class PermissionDTO {
 	private UserDTO entityOther;
 	
 	private String id_main;
-	private String id_other;
+	private String id_others;
 	
 	private Boolean success;
 	private String mes;
 	
+	private List<PermissionDTO> dataChange;
 	private List<PermissionDTO> dtos;
 
 }

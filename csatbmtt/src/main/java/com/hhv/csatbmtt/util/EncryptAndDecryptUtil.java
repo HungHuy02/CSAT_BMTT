@@ -1,6 +1,7 @@
 package com.hhv.csatbmtt.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.stereotype.Component;
 
 import com.hhv.csatbmtt.dto.UserDTO;
@@ -25,20 +26,20 @@ public class EncryptAndDecryptUtil {
 		entity.setAddress(aes.encrypt(entity.getAddress(), iv));
 		entity.setEmail(aes.encrypt(entity.getEmail(), iv));
 		entity.setAtm(aes.encrypt(entity.getAtm(), iv));
-		entity.setPhone(aes.encrypt(entity.getPhone(), iv));
+		entity.setPhoneNumber(aes.encrypt(entity.getPhoneNumber(), iv));
 		entity.setPassword(aes.encrypt(entity.getPassword(), iv));
 		return entity;
 	}
 	
-	public UserDTO decryptAll(UserDTO dto) {
+	public UserDTO decryptAll(UserEntity entity, UserDTO dto) {
 		String iv = dto.getPassword();
-		dto.setName(aes.encrypt(dto.getName(), iv));
-		dto.setBirthday(aes.encrypt(dto.getBirthday(), iv));
-		dto.setAddress(aes.encrypt(dto.getAddress(), iv));
-		dto.setEmail(aes.encrypt(dto.getEmail(), iv));
-		dto.setAtm(aes.encrypt(dto.getAtm(), iv));
-		dto.setPhone(aes.encrypt(dto.getPhone(), iv));
-		dto.setPassword(aes.encrypt(dto.getPassword(), iv));
+		dto.setName(aes.decrypt(entity.getName(), iv));
+		dto.setBirthday(aes.decrypt(entity.getBirthday(), iv));
+		dto.setAddress(aes.decrypt(entity.getAddress(), iv));
+		dto.setEmail(aes.decrypt(entity.getEmail(), iv));
+		dto.setAtm(aes.decrypt(entity.getAtm(), iv));
+		dto.setPhoneNumber(aes.decrypt(entity.getPhoneNumber(), iv));
+		dto.setPassword(aes.decrypt(entity.getPassword(), iv));
 		return dto;
 	}
 }

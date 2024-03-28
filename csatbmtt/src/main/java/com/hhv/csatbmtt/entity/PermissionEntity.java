@@ -28,14 +28,14 @@ public class PermissionEntity {
 	private Long id;
 	
 	@ManyToOne
-	@JoinColumn(name = "id_main")
+	@JoinColumn(name = "citizenIdentificationNumber_main")
 	private UserEntity entityMain;
 	
 	@Column
 	private String columnName;
 	
 	@ManyToOne
-	@JoinColumn(name = "id_other")
+	@JoinColumn(name = "citizenIdentificationNumber_others")
 	private UserEntity entityOther;
 	
 	@Column(columnDefinition = "TEXT")

@@ -11,7 +11,7 @@ public class UserDetail implements UserDetails{
 	private String password;
 	
 	public UserDetail(UserEntity entity) {
-		id = entity.getId();
+		id = entity.getCitizenIdentificationNumber();
 		password = entity.getPassword();
 	}
 
