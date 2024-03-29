@@ -5,14 +5,19 @@ import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.stereotype.Component;
 
 import com.hhv.csatbmtt.dto.UserDTO;
+import com.hhv.csatbmtt.entity.PermissionEntity;
 import com.hhv.csatbmtt.entity.UserEntity;
 import com.hhv.csatbmtt.security.AES;
+import com.hhv.csatbmtt.security.RSA;
 
 @Component
 public class EncryptAndDecryptUtil {
 	
 	@Autowired
 	private AES aes;
+	
+	@Autowired
+	private RSA rsa;
 	
 	public boolean checkPassword(UserEntity entity, UserDTO dto) {
 		String decryptPassword = aes.decrypt(entity.getPassword(), dto.getPassword());
@@ -33,13 +38,63 @@ public class EncryptAndDecryptUtil {
 	
 	public UserDTO decryptAll(UserEntity entity, UserDTO dto) {
 		String iv = dto.getPassword();
-		dto.setName(aes.decrypt(entity.getName(), iv));
-		dto.setBirthday(aes.decrypt(entity.getBirthday(), iv));
-		dto.setAddress(aes.decrypt(entity.getAddress(), iv));
-		dto.setEmail(aes.decrypt(entity.getEmail(), iv));
-		dto.setAtm(aes.decrypt(entity.getAtm(), iv));
-		dto.setPhoneNumber(aes.decrypt(entity.getPhoneNumber(), iv));
-		dto.setPassword(aes.decrypt(entity.getPassword(), iv));
-		return dto;
+		UserDTO newDTO = new UserDTO();
+		newDTO.setCitizenIdentificationNumber(entity.getCitizenIdentificationNumber());
+		newDTO.setName(aes.decrypt(entity.getName(), iv));
+		newDTO.setBirthday(aes.decrypt(entity.getBirthday(), iv));
+		newDTO.setAddress(aes.decrypt(entity.getAddress(), iv));
+		newDTO.setEmail(aes.decrypt(entity.getEmail(), iv));
+		newDTO.setAtm(aes.decrypt(entity.getAtm(), iv));
+		newDTO.setPhoneNumber(aes.decrypt(entity.getPhoneNumber(), iv));
+		newDTO.setPassword(aes.decrypt(entity.getPassword(), iv));
+		return newDTO;
+	}
+	
+	public UserDTO maskingData(UserEntity entity, String id) {
+		String mask = "*******";
+		UserDTO maskDTO = UserDTO.builder()
+				.citizenIdentificationNumber(entity.getCitizenIdentificationNumber())
+				.email(mask)
+				.address(mask)
+				.password(mask)
+				.phoneNumber(mask)
+				.birthday(mask)
+				.atm(mask)
+				.name(mask)
+				.build();
+		if(!entity.getListMain().isEmpty()) {
+			String iv = "";
+			for (PermissionEntity permission : entity.getListMain()) {
+				if(permission.getEntityOther().getCitizenIdentificationNumber().equals(id)) {
+					if(iv.equals("")) {
+						iv = rsa.decrypt(permission.getEkey(), permission.getEntityOther().getPrivateKey());
+					}
+					switch (permission.getColumnName()) {
+					case "name":
+						maskDTO.setName(aes.decrypt(entity.getName(), iv));
+						break;
+					case "address":
+						maskDTO.setAddress(aes.decrypt(entity.getAddress(), iv));
+						break;
+					case "phoneNumber":
+						maskDTO.setPhoneNumber(aes.decrypt(entity.getPhoneNumber(), iv));
+						break;
+					case "birthday":
+						maskDTO.setBirthday(aes.decrypt(entity.getBirthday(), iv));
+						break;	
+					case "email":
+						maskDTO.setEmail(aes.decrypt(entity.getEmail(), iv));
+						break;
+					case "password":
+						maskDTO.setPassword(aes.decrypt(entity.getPassword(), iv));
+						break;	
+					case "atm":
+						maskDTO.setAtm(aes.decrypt(entity.getAtm(), iv));
+						break;	
+					}
+				}
+			}
+		}
+		return maskDTO;
 	}
 }

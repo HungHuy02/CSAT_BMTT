@@ -58,7 +58,7 @@ public class UserAPI {
 	
 	@PutMapping("updateDecentralization")
 	public ResponseEntity<PermissionDTO> updatePermission(@RequestBody PermissionDTO dto, @RequestHeader("x-auth-token") String token) {
-		PermissionDTO response = permissionService.update(dto);
+		PermissionDTO response = permissionService.update(dto, token);
 		if(response.getSuccess()) {
 			return new ResponseEntity<PermissionDTO>(response, HttpStatus.OK);
 		}else 
@@ -67,8 +67,12 @@ public class UserAPI {
 	
 	
 	@GetMapping("getDataUsers/{id}")
-	public ResponseEntity<List<UserDTO>> getAllUser(@PathVariable String id, @RequestHeader("x-auth-token") String token) {
-		return new ResponseEntity<List<UserDTO>>(userService.findAll(), HttpStatus.OK);
+	public ResponseEntity<UserDTO> getAllUser(@PathVariable String id, @RequestHeader("x-auth-token") String token) {
+		UserDTO response = userService.findAll(UserDTO.builder().citizenIdentificationNumber(id).token(token).build());
+		if(response.getSuccess()) {
+			return new ResponseEntity<UserDTO>(response, HttpStatus.OK);
+		}else 
+			return new ResponseEntity<UserDTO>(response, HttpStatus.BAD_REQUEST);
 	}
 	
 	@GetMapping("getInfPersonal/{id}")
@@ -81,8 +85,8 @@ public class UserAPI {
 	}
 	
 	@PostMapping("addDecentralization")
-	public ResponseEntity<PermissionDTO> addDecentralization(@RequestBody PermissionDTO dto, @RequestHeader("x-auth-token") String token) {
-		PermissionDTO response = permissionService.save(dto);
+	public ResponseEntity<PermissionDTO> addDecentralization(@RequestBody List<PermissionDTO> dataChange, @RequestHeader("x-auth-token") String token) {
+		PermissionDTO response = permissionService.save(dataChange, token);
 		if(response.getSuccess()) {
 			return new ResponseEntity<PermissionDTO>(response, HttpStatus.OK);
 		}else 
@@ -90,7 +94,7 @@ public class UserAPI {
 	}
 	
 	@PostMapping("deleteDecentralization")
-	public ResponseEntity<PermissionDTO> deleteDecentralization(@RequestBody PermissionDTO dto, @RequestHeader("x-auth-token") String token) {
+	public ResponseEntity<PermissionDTO> deleteDecentralization(@RequestBody PermissionDTO dto) {
 		PermissionDTO response = permissionService.delete(dto);
 		if(response.getSuccess()) {
 			return new ResponseEntity<PermissionDTO>(response, HttpStatus.OK);
@@ -104,8 +108,8 @@ public class UserAPI {
 	}
 	
 	@GetMapping("getDecentralization/{id}")
-	public ResponseEntity<PermissionDTO> getDecentralization(@PathVariable String id, @RequestHeader("x-auth-token") String token) {
-		PermissionDTO response = permissionService.findAll();
+	public ResponseEntity<PermissionDTO> getDecentralization(@PathVariable String id) {
+		PermissionDTO response = permissionService.findAllByIdMain(id);
 		if(response.getSuccess()) {
 			return new ResponseEntity<PermissionDTO>(response, HttpStatus.OK);
 		}else {

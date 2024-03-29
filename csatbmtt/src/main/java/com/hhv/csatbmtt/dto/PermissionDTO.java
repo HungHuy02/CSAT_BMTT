@@ -3,6 +3,7 @@ package com.hhv.csatbmtt.dto;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,5 +33,7 @@ public class PermissionDTO {
 	
 	private List<PermissionDTO> dataChange;
 	private List<PermissionDTO> dtos;
+	
+	private List<PermissionDTO> listDataUserAuthorizations;
 
 }

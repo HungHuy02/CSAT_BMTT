@@ -10,7 +10,7 @@ public interface UserService extends UserDetailsService{
 	
 	UserDTO findById(UserDTO dto);
 	UserDTO save(UserDTO dto);
-	List<UserDTO> findAll();
+	UserDTO findAll(UserDTO dto);
 	UserDTO register(UserDTO dto);
 	UserDTO login(UserDTO dto);
 }

@@ -1,6 +1,7 @@
 package com.hhv.csatbmtt.dto;
 
 import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -38,6 +39,8 @@ public class UserDTO {
 	private String token;
 	
 	private UserDTO individual;
+	
+	private List<UserDTO> listDataUser;
 
 	private Boolean success;
 	private String mes;

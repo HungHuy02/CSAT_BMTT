@@ -10,5 +10,5 @@ public interface PermissionRepository extends JpaRepository<PermissionEntity, Lo
 
 	List<PermissionEntity> findByEntityMain_citizenIdentificationNumber(String idMain);
 	List<PermissionEntity> findByEntityMain_citizenIdentificationNumberAndEntityOther_citizenIdentificationNumber(String id_main, String id_other);
-	void deleteByEntityMain_citizenIdentificationNumberAndEntityOther_citizenIdentificationNumber(String id_main, String id_other);
+	void deleteByEntityMain_citizenIdentificationNumberAndEntityOther_citizenIdentificationNumber(String id_main, String id_others);
 }

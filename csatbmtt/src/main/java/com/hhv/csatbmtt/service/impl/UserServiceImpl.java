@@ -21,9 +21,11 @@ import com.hhv.csatbmtt.service.UserService;
 import com.hhv.csatbmtt.util.EncryptAndDecryptUtil;
 import com.hhv.csatbmtt.util.JwtUtil;
 
+import jakarta.transaction.Transactional;
 import lombok.Builder;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService{
 	
 	@Autowired
@@ -48,15 +50,30 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public List<UserDTO> findAll() {
-		// TODO Auto-generated method stub
+	public UserDTO findAll(UserDTO dto) {
+		UserDTO response;
+		dto.setPassword(jwtUtil.extractPass(dto.getToken()));
 		List<UserDTO> dtos = new ArrayList<>();
 		List<UserEntity> entities = repository.findAll();
-		for (UserEntity userEntity : entities) {
-			UserDTO dto = mapper.map(userEntity, UserDTO.class);
-			dtos.add(dto);
+		if(entities.isEmpty()) {
+			response = UserDTO.builder().success(false).build();
+		}else {
+			for (UserEntity userEntity : entities) {
+				UserDTO newDTO;
+				if(userEntity.getCitizenIdentificationNumber().equals(dto.getCitizenIdentificationNumber())) {
+					newDTO = encryptAndDecryptUtil.decryptAll(userEntity, dto);
+				}else {
+					newDTO = encryptAndDecryptUtil.maskingData(userEntity, dto.getCitizenIdentificationNumber());
+				}
+				 
+				dtos.add(newDTO);
+			}
+			response = UserDTO.builder().success(true)
+					.listDataUser(dtos)
+					.build();
 		}
-		return dtos;
+		
+		return response;
 	}
 
 	@Override

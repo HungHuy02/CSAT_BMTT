@@ -2,6 +2,7 @@ package com.hhv.csatbmtt.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -11,17 +12,33 @@ import org.springframework.stereotype.Service;
 import com.hhv.csatbmtt.dto.PermissionDTO;
 import com.hhv.csatbmtt.dto.UserDTO;
 import com.hhv.csatbmtt.entity.PermissionEntity;
+import com.hhv.csatbmtt.entity.UserEntity;
 import com.hhv.csatbmtt.repository.PermissionRepository;
+import com.hhv.csatbmtt.repository.UserRepository;
+import com.hhv.csatbmtt.security.RSA;
 import com.hhv.csatbmtt.service.PermissionService;
+import com.hhv.csatbmtt.util.JwtUtil;
+
+import jakarta.transaction.Transactional;
 
 @Service
+@Transactional
 public class PermissionServiceImpl implements PermissionService{
 	
 	@Autowired
 	private PermissionRepository repository;
 	
 	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
 	private ModelMapper mapper;
+	
+	@Autowired
+	private RSA rsa;
+	
+	@Autowired
+	private JwtUtil jwtUtil;
 
 	@Override
 	public PermissionDTO findAll() {
@@ -57,8 +74,10 @@ public class PermissionServiceImpl implements PermissionService{
 			response = PermissionDTO.builder()
 					.mes("Thành công")
 					.success(true)
-					.dtos(entities.stream()
-							.map(entity -> mapper.map(entity, PermissionDTO.class))
+					.listDataUserAuthorizations(entities.stream()
+							.map(entity -> PermissionDTO.builder().id_main(entity.getEntityMain().getCitizenIdentificationNumber())
+									.id_others(entity.getEntityOther().getCitizenIdentificationNumber())
+									.columnName(entity.getColumnName()).build())
 							.collect(Collectors.toList()))
 					.build();
 		}
@@ -85,34 +104,62 @@ public class PermissionServiceImpl implements PermissionService{
 	}
 
 	@Override
-	public PermissionDTO save(PermissionDTO dto) {
-		dto.setEntityMain(UserDTO.builder().citizenIdentificationNumber(dto.getId_main()).build());
-		dto.setEntityOther(UserDTO.builder().citizenIdentificationNumber(dto.getId_others()).build());
+	public PermissionDTO save(List<PermissionDTO> dataChange, String token) {
 		PermissionDTO response;
-		PermissionEntity entity = repository.save(mapper.map(dto, PermissionEntity.class));
-		if(entity.getId() != null) {
-			response = PermissionDTO.builder()
-					.mes("Thành công")
-					.success(true)
-					.build();
-		}else {
+		String id_other = "";
+		String eKey = "";
+		List<Long> ids = new ArrayList<>();
+		for (PermissionDTO object : dataChange) {
+			if(!id_other.equals(object.getId_others())) {
+				id_other = object.getId_others();
+				Optional<UserEntity> entity = userRepository.findByCitizenIdentificationNumber(id_other);
+				eKey = rsa.encrypt(jwtUtil.extractPass(token), entity.get().getPublicKey());
+			}
+			PermissionEntity entity = PermissionEntity.builder()
+										.entityMain(UserEntity.builder().citizenIdentificationNumber(object.getId_main()).build())
+										.entityOther(UserEntity.builder().citizenIdentificationNumber(object.getId_others()).build())
+										.columnName(object.getColumnName())
+										.ekey(eKey)
+										.build();
+			entity = repository.save(entity);
+			ids.add(entity.getId());
+		}
+		if(ids.size() != dataChange.size()) {
 			response = PermissionDTO.builder()
 					.mes("Thất bại")
 					.success(false)
+					.build();
+		}else {
+			response = PermissionDTO.builder()
+					.mes("Thành công")
+					.success(true)
 					.build();
 		}
 		return response;
 	}
 
 	@Override
-	public PermissionDTO update(PermissionDTO dto) {
+	public PermissionDTO update(PermissionDTO dto, String token) {
 		PermissionDTO response;
 		repository.deleteByEntityMain_citizenIdentificationNumberAndEntityOther_citizenIdentificationNumber(dto.getId_main(), dto.getId_others());
 		List<PermissionEntity> list = repository.findByEntityMain_citizenIdentificationNumberAndEntityOther_citizenIdentificationNumber(dto.getId_main(), dto.getId_others());
 		if(list.isEmpty()) {
+			String id_other = "";
+			String eKey = "";
 			List<Long> ids = new ArrayList<>();
 			for (PermissionDTO object : dto.getDataChange()) {
-				PermissionEntity entity = repository.save(mapper.map(object, PermissionEntity.class));
+				if(!id_other.equals(object.getId_others())) {
+					id_other = object.getId_others();
+					Optional<UserEntity> entity = userRepository.findByCitizenIdentificationNumber(id_other);
+					eKey = rsa.encrypt(jwtUtil.extractPass(token), entity.get().getPublicKey());
+				}
+				PermissionEntity entity = PermissionEntity.builder()
+											.entityMain(UserEntity.builder().citizenIdentificationNumber(object.getId_main()).build())
+											.entityOther(UserEntity.builder().citizenIdentificationNumber(object.getId_others()).build())
+											.columnName(object.getColumnName())
+											.ekey(eKey)
+											.build();
+				entity = repository.save(entity);
 				ids.add(entity.getId());
 			}
 			if(ids.size() == dto.getDataChange().size()) {
