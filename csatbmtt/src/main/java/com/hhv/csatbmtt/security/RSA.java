@@ -147,8 +147,4 @@ public class RSA {
 		byte[] result = (new BigInteger(cipherText)).modPow(d, n).toByteArray();
 		return byteArrayToString(result);
 	}
-
-	
-
-
 }

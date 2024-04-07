@@ -1,5 +1,6 @@
 package com.hhv.csatbmtt.security;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,10 +10,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class AES {
 
+	private static final int KEY_SIZE = 128;
+	private static final int BLOCK_SIZE = KEY_SIZE / 8;
 	private static final int Nb = 4;
-	private static final int Nr = 10;
-	private static final int Nk = 4;
+	private static final int Nk = KEY_SIZE / 32;
+	private static final int Nr = Nk + 6; 
+	
 	private static final String SKey = "0123456789abcdef";
+//	private static final String SKey = "0123456789abcdef12345678";
+//	private static final String SKey = "0123456789abcdef1234567812345678";
 	private static final byte Key[] = SKey.getBytes();
 	private static byte state[][] = new byte[4][4];
 	private static byte RoundKey[] = new byte[240];
@@ -77,6 +83,7 @@ public class AES {
 		int i, j;
 		byte temp[] = new byte[4];
 		byte k;
+
 
 		for (i = 0; i < Nk; i++) {
 			RoundKey[i * 4] = Key[i * 4];
@@ -254,7 +261,7 @@ public class AES {
 	}
 
 	private byte[] Cipher(byte[] in, byte[] iv) {
-		byte out[] = new byte[16];
+		byte out[] = new byte[BLOCK_SIZE];
 		int round = 0;
 		in = XorWithIv(in, iv);
 		for (int i = 0; i < 4; i++) {
@@ -282,7 +289,7 @@ public class AES {
 	}
 
 	private byte[] DeCipher(byte[] in, byte[] iv) {
-		byte out[] = new byte[16];
+		byte out[] = new byte[BLOCK_SIZE];
 		int round = 0;
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
@@ -332,7 +339,7 @@ public class AES {
 	}
 
 	private byte[] XorWithIv(byte[] in, byte[] iv) {
-		for (int i = 0; i < 16; ++i) {
+		for (int i = 0; i < BLOCK_SIZE; ++i) {
 			in[i] ^= iv[i];
 		}
 		return in;
@@ -340,15 +347,14 @@ public class AES {
 
 	private List<byte[]> splitIntoBlocks(byte[] input) {
 		List<byte[]> blocks = new ArrayList<>();
-		int blockSize = 16;
-		int numBlocks = (int) Math.ceil((double) input.length / blockSize);
+		int numBlocks = (int) Math.ceil((double) input.length / BLOCK_SIZE);
 		for (int i = 0; i < numBlocks; i++) {
-			int startIdx = i * blockSize;
-			int endIdx = Math.min(startIdx + blockSize, input.length);
+			int startIdx = i * BLOCK_SIZE;
+			int endIdx = Math.min(startIdx + BLOCK_SIZE, input.length);
 			byte[] block = new byte[endIdx - startIdx];
 			System.arraycopy(input, startIdx, block, 0, endIdx - startIdx);
-			if (block.length < 16)
-				block = addPKCS7Padding(block, 16);
+			if (block.length < BLOCK_SIZE)
+				block = addPKCS7Padding(block, BLOCK_SIZE);
 			blocks.add(block);
 		}
 		return blocks;
@@ -381,8 +387,13 @@ public class AES {
 
 	public String encrypt(String plainText, String iv) {
 		byte[] ivb = iv.getBytes();
-		ivb = addPKCS7Padding(ivb, 16);
-		List<byte[]> blocks = splitIntoBlocks(plainText.getBytes());
+		ivb = addPKCS7Padding(ivb, BLOCK_SIZE);
+		List<byte[]> blocks;
+		try {
+			blocks = splitIntoBlocks(plainText.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			blocks = splitIntoBlocks(plainText.getBytes());
+		}
 		byte[] rs = new byte[0];
 		for (byte[] b : blocks) {
 			rs = mergeArrays(rs, Cipher(b, ivb));
@@ -392,7 +403,7 @@ public class AES {
 
 	public String decrypt(String cipherText, String iv) {
 		byte[] ivb = iv.getBytes();
-		ivb = addPKCS7Padding(ivb, 16);
+		ivb = addPKCS7Padding(ivb, BLOCK_SIZE);
 		List<byte[]> blocks = splitIntoBlocks(hexStringToByteArray(cipherText));
 		byte[] rs = new byte[0];
 		for (byte[] b : blocks) {
