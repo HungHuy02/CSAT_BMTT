@@ -110,12 +110,6 @@ public class UserAPI {
 	@GetMapping("getDecentralization/{id}")
 	public ResponseEntity<PermissionDTO> getDecentralization(@PathVariable String id) {
 		PermissionDTO response = permissionService.findAllByIdMain(id);
-		if(response.getSuccess()) {
-			return new ResponseEntity<PermissionDTO>(response, HttpStatus.OK);
-		}else {
-			return new ResponseEntity<PermissionDTO>(response, HttpStatus.BAD_REQUEST);
-
-		}
-		
+		return new ResponseEntity<PermissionDTO>(response, HttpStatus.OK);
 	}
 }
